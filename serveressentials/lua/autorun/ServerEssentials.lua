@@ -1,6 +1,6 @@
 --[[ 
 
-	-- AutoWarning system for when people use racial slurs
+	-- AutoWarning system for when people use racial slurs 
 
 	-- System to Autopromote users to certain ranks
 
@@ -15,6 +15,8 @@
 	-- Work on a way to make the config write itself if possible
 
 	-- Have my anti admin chat spam store if the user has been kicked before and how many times.
+
+	-- If the user has been kicked more times that day than allowed in config it will automatically ban them for how long is set in the config
 
 --]] 
 
@@ -33,8 +35,8 @@ function makeCfgFile(ply)
 		return
 	else
 		file.Write("serveressentials.txt", "")
-		file.Append("serveressentials.txt","-- ServerEssentials --\n \n-- SPLIT CONFIG --\n \n-- AutoWarn -- \nenabled = true\nracialslurs = {} <- insert racialslurs in there \n-- SPLIT CONFIG --\n \n-- AntiAdminSpam-- \n \n-- SPLIT CONFIG --\n \n-- AutoMute --")
-		print("Config file for Server Essentials is made.")
+		file.Append("serveressentials.txt","-- ServerEssentials --\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {} <- insert racialslurs in there \n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\n-- SPLIT CONFIG --\n-- NameChangeAlert --")
+		print("Config file made in your GarrysMod/Data folder for Server Essentials")
 	end
 end
 hook.Add("Initialize", "makeCfgFile", makeCfgFile)
@@ -47,6 +49,7 @@ function readCfg(portion)
 	elseif (portion == "AutoWarn") then return (portions[2])
 	elseif (portion == "AntiAdminSpam") then return (portions[3])
 	elseif (portion == "AutoMute") then return (portions[4])
+	elseif (portion == "NameChange") then return (portions[5])
 	end
 	print("-- DEBUG ReadCfg --")
 end
@@ -78,6 +81,7 @@ end
 hook.Add("PlayerSay", "AutoWarn", AutoWarn)
 --Anti Admin Chat Spam
 SpamDetector = {}
+AmountOfKicks = {}
 function AntiAdminSpam(ply, commandName, translated_args)
 	textdata = readCfg("AntiAdminSpam")
 	RunString(textdata)
@@ -91,12 +95,36 @@ function AntiAdminSpam(ply, commandName, translated_args)
 			end
 			timer.Create("AntiAdminSpamClear", AdminSpamID, 0, function() SpamDetector = {} end)
 			if(SpamDetector[ply:SteamID()] >= amounttokick) then
+ 				if(AmountOfKicks[ply:SteamID()] != nil) then
+					AmountOfKicks[ply:SteamID()] = AmountOfKicks[ply:SteamID()] + 1
+				else
+					AmountOfKicks[ply:SteamID()] = 1
+				end 
 				ply:Kick("Please do not spam admin chat "..ply:Name().." (ServerEssentials)")
+				PrintTable(AmountofKicks)
 				SpamDetector[ply:SteamID()] = 0
 				return false
 			end
+			timer.Create("AdminChatBanClear", 86400, 0, function() AmountofKicks = {} end)
+--[[ 			if(amountofkicks[ply:SteamID()] >= amounttoban) then
+				RunConsoleCommand("ulx","banid", ply:SteamID(), banlength, "You've been banned by Server Essentials for constant admin chat spam.")
+				amountofkicks[ply:SteamID()] = 0
+				return false
+			end--]] 
 		end
 	end
 end
 hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
 print("-- DEBUG FINAL --")
+function NameChange( ply, oldName, newName )
+	OldPlyName = oldName
+	print(OldPlyName)
+	NewPlyName = newName
+	print(NewPlyName)
+	if (enabled == true) then
+		if(OldPlyName != NewPlyName) then
+			RunConsoleCommand("ullx","asay", "(ServerEssentials) has detected that "..OldPlyName.." has changed their name to this "..NewPlyName)
+		end
+	end
+end
+hook.Add("ULibPlayerNameChanged", "NameChanged", NameChange)
