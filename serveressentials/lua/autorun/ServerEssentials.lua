@@ -35,7 +35,7 @@ function makeCfgFile(ply)
 		return
 	else
 		file.Write("serveressentials.txt", "")
-		file.Append("serveressentials.txt","-- ServerEssentials --\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {} <- insert racialslurs in there \n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\n-- SPLIT CONFIG --\n-- NameChangeAlert --")
+		file.Append("serveressentials.txt","-- ServerEssentials --\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {}\n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\n-- SPLIT CONFIG --")
 		print("Config file made in your GarrysMod/Data folder for Server Essentials")
 	end
 end
@@ -49,7 +49,7 @@ function readCfg(portion)
 	elseif (portion == "AutoWarn") then return (portions[2])
 	elseif (portion == "AntiAdminSpam") then return (portions[3])
 	elseif (portion == "AutoMute") then return (portions[4])
-	elseif (portion == "NameChange") then return (portions[5])
+	elseif (portion == "NameChangeAlert") then return (portions[5])
 	end
 	print("-- DEBUG ReadCfg --")
 end
@@ -71,7 +71,7 @@ function AutoWarn(ply, text, public)
 				returnedstring, racialslur = string.gsub(text, line, line)
 					if (racialslur > 0) then
 						RunConsoleCommand("ulx","asay", "(ServerEssentials) has detected use of racial slur(s) by "..ply:Name().." and is about to be warned.")
-						timer.Create("warncountdown"..ply:SteamID(), 5, 1, function() RunConsoleCommand("awarn_warn", ply:SteamID(), warnreason) end)
+						timer.Create("warncountdown"..ply:SteamID(), 5, 1, function() RunConsoleCommand("awarn_warn", ply:SteamID(), "(ServerEssentials) Please do not use racial slur(s) in chat.") end)
 					end
 				end
 			end
@@ -81,13 +81,11 @@ end
 hook.Add("PlayerSay", "AutoWarn", AutoWarn)
 --Anti Admin Chat Spam
 SpamDetector = {}
-AmountOfKicks = {}
 function AntiAdminSpam(ply, commandName, translated_args)
 	textdata = readCfg("AntiAdminSpam")
 	RunString(textdata)
 	if (enabled == true) then
 		if(commandName == "ulx asay") then
-			print(ply:SteamID())
 			if(SpamDetector[ply:SteamID()] != nil) then
 				SpamDetector[ply:SteamID()] = SpamDetector[ply:SteamID()] + 1
 			else
@@ -95,11 +93,11 @@ function AntiAdminSpam(ply, commandName, translated_args)
 			end
 			timer.Create("AntiAdminSpamClear", AdminSpamID, 0, function() SpamDetector = {} end)
 			if(SpamDetector[ply:SteamID()] >= amounttokick) then
- 				if(AmountOfKicks[ply:SteamID()] != nil) then
+--[[ 				if(AmountOfKicks[ply:SteamID()]) != nil) then
 					AmountOfKicks[ply:SteamID()] = AmountOfKicks[ply:SteamID()] + 1
 				else
 					AmountOfKicks[ply:SteamID()] = 1
-				end 
+				end--]] 
 				ply:Kick("Please do not spam admin chat "..ply:Name().." (ServerEssentials)")
 				PrintTable(AmountofKicks)
 				SpamDetector[ply:SteamID()] = 0
@@ -116,15 +114,3 @@ function AntiAdminSpam(ply, commandName, translated_args)
 end
 hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
 print("-- DEBUG FINAL --")
-function NameChange( ply, oldName, newName )
-	OldPlyName = oldName
-	print(OldPlyName)
-	NewPlyName = newName
-	print(NewPlyName)
-	if (enabled == true) then
-		if(OldPlyName != NewPlyName) then
-			RunConsoleCommand("ullx","asay", "(ServerEssentials) has detected that "..OldPlyName.." has changed their name to this "..NewPlyName)
-		end
-	end
-end
-hook.Add("ULibPlayerNameChanged", "NameChanged", NameChange)
