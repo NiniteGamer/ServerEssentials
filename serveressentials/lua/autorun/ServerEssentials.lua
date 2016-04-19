@@ -49,7 +49,7 @@ function readCfg(portion)
 	elseif (portion == "AutoWarn") then return (portions[2])
 	elseif (portion == "AntiAdminSpam") then return (portions[3])
 	elseif (portion == "AutoMute") then return (portions[4])
-	elseif (portion == "NameChangeAlert") then return (portions[5])
+	elseif (portion == "PsaySpy") then return (portions[5])
 	end
 	print("-- DEBUG ReadCfg --")
 end
@@ -113,4 +113,32 @@ function AntiAdminSpam(ply, commandName, translated_args)
 	end
 end
 hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
+function PsaySpy(ply, commandName, translated_args)
+	textdata = readCfg(	"PsaySpy")
+	RunString(textdata)
+	PrintTable(alertwords)
+	if(enabled == true) then
+		if(commandName == "ulx psay") then
+			ply2 = translated_args[2]
+			msg = translated_args[3]
+			string.lower(msg)
+			for i, line in ipairs(alertwords) do
+				if(line ~= nil and line ~= "") then
+				returnedstring, alertword = string.gsub(msg, line, line)
+					if(alertword > 0) then
+						if(ply:Alive() == false and ply2:Alive() == true) then
+							RunConsoleCommand("ulx","asay","(ServerEssentials) has detected potential ghosting by "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
+							if(warnenabled == true) then
+								timer.Create("warntimer",warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "(ServerEssentials) "..ply:Name().." please do not ghost again final warning.") end)
+							end
+						else
+							RunConsoleCommand("ulx","asay","(ServerEssentials) "..ply:Name().." has been detected using a alert word in a psay to "..ply2:Name())
+						end
+					end
+				end
+			end
+		end
+	end
+end
+hook.Add("ULibPostTranslatedCommand", "PsaySpy", PsaySpy)
 print("-- DEBUG FINAL --")
