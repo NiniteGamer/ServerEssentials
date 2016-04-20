@@ -1,5 +1,7 @@
 Welcome to the Server Essentials Addon for the TTT Gamemode
 
+This Addon is made for the Galaxy Gaming Community, but is free to any other community wanting to use it.
+
 ---- Server Essentials Developers ----
 
 Contact these people if you need any help with this addon
