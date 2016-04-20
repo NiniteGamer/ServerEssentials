@@ -1,13 +1,15 @@
 local exolib = include("exolib.lua")
+--Below here is where it checks if the config file is made or not
 function makeCfgFile(ply)
 	if (file.Exists("serveressentials.txt","DATA")) then
 		return
 	else
 		file.Write("serveressentials.txt", "")
-		file.Append("serveressentials.txt","-- ServerEssentials --\nstaffranks = {'superadmin'}\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {'ban'}\ntimetowarn = 5\nmuteenabled = false\ntimetounmuteawarn = 30\n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\nbannedwords = {}\n-- SPLIT CONFIG --\n-- PsaySpy --\nenabled= true\nalertwords = {'kos','defib','KOS','k0s'}\nwarnenabled = true\nwarntimeramount = 20\n-- SPLIT CONFIG --\n-- AntiChatSpam --\nenabled = true\nhudprintenable = true\nasaytoadminacs = true\nAdmoonID = 5\namounttomute = 5\ntimetounmute = 60\n-- SPLIT CONFIG --")
-		print("Config file made in your GarrysMod/Data folder for Server Essentials")
+		file.Append("serveressentials.txt","-- ServerEssentials --\nVersion = 'v1.0.0'\nBuild = User\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {'ban'}\ntimetowarn = 5\nmuteenabled = false\ntimetounmuteawarn = 30\n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\nbannedwords = {}\n-- SPLIT CONFIG --\n-- PsaySpy --\nenabled= true\nalertwords = {'kos','defib','KOS','k0s'}\nwarnenabled = true\nwarntimeramount = 20]\npsayseeenabled = true\n-- SPLIT CONFIG --\n-- AntiChatSpam --\nenabled = true\nhudprintenable = true\nasaytoadminacs = true\nAdmoonID = 5\namounttomute = 5\ntimetounmute = 60\n-- SPLIT CONFIG --")
+		ServerLog("Config file made in your GarrysMod/Data folder for Server Essentials\n")
 	end
 end
+-- Reading the Config File below (DO NOT CHANGE ANYTHING UNDER HERE UNLESS YOU KNOW WHAT YOU'RE DOING OR HAVE BEEN INSTRUCTED BY NINITEGAMER OR EXO) --
 function readCfg(portion)
 	textdata = file.Read("serveressentials.txt")
 	portions = string.Explode("-- SPLIT CONFIG --", textdata)
@@ -19,11 +21,22 @@ function readCfg(portion)
 	elseif (portion == "AntiChatSpam") then return (portions[6])
 	end
 end
+--Do not touch anything in the InfoPrinter Function
+function InfoPrinter()
+	textdata = readCfg("ServerEssentials")
+	RunString(textdata)
+	if(enabled == true) then
+		ServerLog("(ServerEssentials) Version: "..buildnumber.."\n")
+		ServerLog("(ServerEssentials) Build: "..build.."\n")
+	end
+end 
 --Auto Warn Code Below
 function AutoWarn(ply, text, public)
 	if(file.Exists("serveressentials.txt", "DATA")) then
 		textdata = readCfg("AutoWarn")
 		RunString(textdata)
+		print(enabled)
+		PrintTable(racialslurs)
 		if (enabled == true) then
 			textdata = string.Explode("\n", textdata)
 			for i, line in ipairs(racialslurs) do
@@ -55,6 +68,7 @@ function AntiAdminSpam(ply, commandName, translated_args)
 				SpamDetector[ply:SteamID()] = 1
 			end
 			timer.Create("AntiAdminSpamClear", AdminSpamID, 0, function() SpamDetector = {} end)
+			staff = exolib.checkPlayerRanks(stopantiadminspam,player.GetAll())
 			if(SpamDetector[ply:SteamID()] >= amounttokick) then
 				ply:Kick("Please do not spam admin chat "..ply:Name().." (ServerEssentials)")
 				SpamDetector[ply:SteamID()] = 0
@@ -85,6 +99,13 @@ function PsaySpy(ply, commandName, translated_args)
 						end
 					end
 				end
+				if(psayseeenabled == true) then -- Need to fix for loop making this print multiple times. Work on it later.
+					if(alertword > 0) then
+						return
+					else
+						ply:ChatPrint("(ServerEssentials) "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
+					end
+				break end
 			end
 		end
 	end
@@ -138,8 +159,9 @@ function AutoMute(ply, text, public)
 			end
 		end
 end
-hook.Add("Initialize", "makeCfgFile", makeCfgFile)
+hook.Add("Initialize","makeCfgFile", makeCfgFile)
 hook.Add("PlayerSay","AutoMute", AutoMute)
+hook.Add("Initialize","InfoPrinter", InfoPrinter)
 hook.Add("PlayerSay","AntiChatSpam", AntiChatSpam)
 hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
 hook.Add("ULibPostTranslatedCommand", "PsaySpy", PsaySpy)
