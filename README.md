@@ -34,7 +34,7 @@ Anti Admin Chat Spam -- No special requirements
 
 Anti Chat Spam -- No special requirements
 
-PsaySpy -- No special requirements
+PsaySpy -- No special requirements (STILL A WORK IN PROGRESS Currently just is a antighosting system)
 
 ---- How to Install ----
 
