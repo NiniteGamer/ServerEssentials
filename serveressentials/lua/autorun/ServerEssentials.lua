@@ -1,16 +1,13 @@
 local exolib = include("exolib.lua")
 function makeCfgFile(ply)
-	if (file.Exists("serveressentials.txt","DATA")) then -- This is where it checks if the file is created or not
-		print("--- DEBUG makeCfgFile ---")
+	if (file.Exists("serveressentials.txt","DATA")) then
 		return
 	else
 		file.Write("serveressentials.txt", "")
-		file.Append("serveressentials.txt","-- ServerEssentials --\nstaffranks = {'superadmin'}\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {'ban'}\ntimetowarn = 5\nmuteenabled = false\ntimetounmuteawarn = 30\n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\nbannedwords = {}\n-- SPLIT CONFIG --\n-- PsaySpy --\nenabled= true\nalertwords = {'kos','defib','KOS','k0s'}\nwarnenabled = true\nwarntimeramount = 20]\npsayseeenabled = true\n-- SPLIT CONFIG --\n-- AntiChatSpam --\nenabled = true\nhudprintenable = true\nasaytoadminacs = true\nAdmoonID = 5\namounttomute = 5\ntimetounmute = 60\n-- SPLIT CONFIG --")
+		file.Append("serveressentials.txt","-- ServerEssentials --\nstaffranks = {'superadmin'}\n-- SPLIT CONFIG --\n-- AutoWarn -- \nenabled = true\nracialslurs = {'ban'}\ntimetowarn = 5\nmuteenabled = false\ntimetounmuteawarn = 30\n-- SPLIT CONFIG --\n-- AntiAdminSpam-- \nenabled = true\nAdminSpamID = 5\namounttokick = 5\n-- SPLIT CONFIG --\n-- AutoMute --\nenabled = true\nbannedwords = {}\n-- SPLIT CONFIG --\n-- PsaySpy --\nenabled= true\nalertwords = {'kos','defib','KOS','k0s'}\nwarnenabled = true\nwarntimeramount = 20\n-- SPLIT CONFIG --\n-- AntiChatSpam --\nenabled = true\nhudprintenable = true\nasaytoadminacs = true\nAdmoonID = 5\namounttomute = 5\ntimetounmute = 60\n-- SPLIT CONFIG --")
 		print("Config file made in your GarrysMod/Data folder for Server Essentials")
 	end
 end
-hook.Add("Initialize", "makeCfgFile", makeCfgFile)
--- Reading the Config File below (DO NOT CHANGE ANYTHING UNDER HERE UNLESS YOU KNOW WHAT YOU'RE DOING OR HAVE BEEN INSTRUCTED BY NINITEGAMER OR EXO) --
 function readCfg(portion)
 	textdata = file.Read("serveressentials.txt")
 	portions = string.Explode("-- SPLIT CONFIG --", textdata)
@@ -22,20 +19,11 @@ function readCfg(portion)
 	elseif (portion == "AntiChatSpam") then return (portions[6])
 	end
 end
-
-function StaffPrint()
-	textdata = readCfg("ServerEssentials")
-	RunString(textdata)
-	PrintTable(staffranks)
-end
 --Auto Warn Code Below
 function AutoWarn(ply, text, public)
 	if(file.Exists("serveressentials.txt", "DATA")) then
 		textdata = readCfg("AutoWarn")
-		print("-- DEBUG --")
 		RunString(textdata)
-		print(enabled)
-		PrintTable(racialslurs)
 		if (enabled == true) then
 			textdata = string.Explode("\n", textdata)
 			for i, line in ipairs(racialslurs) do
@@ -69,7 +57,6 @@ function AntiAdminSpam(ply, commandName, translated_args)
 			timer.Create("AntiAdminSpamClear", AdminSpamID, 0, function() SpamDetector = {} end)
 			if(SpamDetector[ply:SteamID()] >= amounttokick) then
 				ply:Kick("Please do not spam admin chat "..ply:Name().." (ServerEssentials)")
-				-- PrintTable(AmountofKicks)
 				SpamDetector[ply:SteamID()] = 0
 				return false
 			end
@@ -97,15 +84,7 @@ function PsaySpy(ply, commandName, translated_args)
 							RunConsoleCommand("ulx","asay","(ServerEssentials) "..ply:Name().." has been detected using a alert word in a psay to "..ply2:Name()..": '"..msg.."'")
 						end
 					end
-					if(psayseeenabled == true) then -- Still needs some work but is really close to being finished.
-						if(alertword > 0) then
-							return
-						else
-							ply:ChatPrint("(ServerEssentials) "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
-						end
-					end
 				end
-				break
 			end
 		end
 	end
@@ -124,7 +103,7 @@ function AntiChatSpam(ply, text, public)
 		timer.Create("AntiChatSpamClear", AdmoonID, 0, function() chatspamdetector = {} end)
 		if(chatspamdetector[ply:SteamID()] >= amounttomute) then
 			RunConsoleCommand("ulx","mute", ply:Name())
-			timer.Create("TimeToUnmute"..ply:SteamID(), timetounmute, 0, function() RunConsoleCommand("ulx","unmute",ply:Name()) end)
+			timer.Create("TimeToUnmute"..ply:SteamID(), timetounmute, 1, function() RunConsoleCommand("ulx","unmute",ply:Name()) end)
 			if(hudprintenable == true) then
 				ply:PrintMessage(HUD_PRINTTALK,"(ServerEssentials) "..ply:Name().." You have been muted for "..timetounmute.." seconds for chat spam.")
 			end
@@ -136,8 +115,32 @@ function AntiChatSpam(ply, text, public)
 		end
 	end
 end
-hook.Add("PlayerSay","StafferPrint", StaffPrint)
-hook.Add("PlayerSay", "AntiChatSpam", AntiChatSpam)
+--Auto Mute Code Below
+function AutoMute(ply, text, public)
+	textdata = readCfg("AutoMute")
+	RunString(textdata)
+		if(enabled == true) then
+			for i, line in ipairs(bannedwords) do
+				if(line ~= nil and line ~= "") then
+					returnedstring, bannedword = string.gsub(text, line, line)
+						if(bannedword > 0) then
+							RunConsoleCommand("ulx","mute",ply:Name())
+							if(printtoplayer == true) then
+								ply:PrintMessage(HUD_PRINTTALK,""..ply:Name().." you've been muted for "..mutelength.." seconds.")
+							end
+							if(printtoadmins == true) then
+								RunConsoleCommand("ulx","asay",""..ply:Name().." has been muted for "..mutelength.." seconds for use of a banned word "..text..".")
+							end
+							timer.Create("timeuntilunmute"..ply:SteamID(), mutelength, 1, function() RunConsoleCommand("ulx","unmute", ply:Name()) end)
+						end
+				end
+				break
+			end
+		end
+end
+hook.Add("Initialize", "makeCfgFile", makeCfgFile)
+hook.Add("PlayerSay","AutoMute", AutoMute)
+hook.Add("PlayerSay","AntiChatSpam", AntiChatSpam)
 hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
 hook.Add("ULibPostTranslatedCommand", "PsaySpy", PsaySpy)
-hook.Add("PlayerSay", "AutoWarn", AutoWarn)
+hook.Add("PlayerSay","AutoWarn", AutoWarn)
