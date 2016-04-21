@@ -12,7 +12,8 @@ Exo (He helped me a lot in making this addon) -- http://steamcommunity.com/id/ex
 
 ---- Server Essentials Version History ----
 
-Pre-Release V 1.0.0 ~ 4/20/2016
+Pre-Release V 1.0.0 ~ 4/19/2016
+Release V 1.0.0 ~ 4/20/2016
 
 ---- Server Essentials Description ----
 
@@ -28,7 +29,7 @@ Mostly everything in Server Essentials is completely customizable.
 
 Server Essentials Requires ULX and ULib to be installed on your server.
 
-AutoWarn -- Requires Awarn2
+AutoCensor -- Requires Awarn2
 
 Anti Admin Chat Spam -- No special requirements
 
