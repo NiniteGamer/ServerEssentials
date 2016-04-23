@@ -1,9 +1,6 @@
 Welcome to the Server Essentials Addon for the TTT Gamemode
 
-This Addon is made for the Galaxy Gaming Community, but is free to any other community wanting to use it.
-
 ---- Server Essentials Developers ----
-
 Contact these people if you need any help with this addon
 
 NiniteGamer -- http://steamcommunity.com/id/NiniteGamer/
@@ -14,6 +11,7 @@ Exo (He helped me a lot in making this addon) -- http://steamcommunity.com/id/ex
 
 Pre-Release V 1.0.0 ~ 4/19/2016
 Release V 1.0.0 ~ 4/20/2016
+Pre-Release V 1.1.0 ~ 4/23/2016
 
 ---- Server Essentials Description ----
 
@@ -35,7 +33,7 @@ Anti Admin Chat Spam -- No special requirements
 
 Anti Chat Spam -- No special requirements
 
-PsaySpy -- No special requirements (STILL A WORK IN PROGRESS Currently just is a antighosting system)
+PsaySpy -- No special requirements
 
 ---- How to Install ----
 
@@ -48,4 +46,3 @@ PsaySpy -- No special requirements (STILL A WORK IN PROGRESS Currently just is a
 Server Essentials is licensed under the GNU General Public License
 
 You can find more info about the license in license.txt
-
