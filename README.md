@@ -1,5 +1,7 @@
 Welcome to the Server Essentials Addon for the TTT Gamemode
 
+PUT THE SERVERESSENTIALS.TXT FILE IN THE GARRYSMOD/DATA FOLDER
+
 ---- Server Essentials Developers ----
 Contact these people if you need any help with this addon
 
