@@ -10,8 +10,12 @@ Exo (He helped me a lot in making this addon) -- http://steamcommunity.com/id/ex
 ---- Server Essentials Version History ----
 
 Pre-Release V 1.0.0 ~ 4/19/2016
+
 Release V 1.0.0 ~ 4/20/2016
+
 Pre-Release V 1.1.0 ~ 4/23/2016
+
+Release 1.2.0 ~ 4/26/2016
 
 ---- Server Essentials Description ----
 
