@@ -13,9 +13,6 @@ function readCfg(portion)
 	elseif (portion == "AntiRadioSpam") then return (portions[9])
 	end
 end
-function infoPrinter()
-	ServerLog("ServerEssentials: Version 1.2.0")
-end 
 function autoCensor(ply, text, public)
 	textdata = readCfg("AutoCensor")
 	RunString(textdata)
@@ -75,14 +72,14 @@ function ghosterBuster(ply, commandName, translated_args)
 					if(alertword > 0) then
 						if(ply:Alive() == false and ply2:Alive() == true) then
 							RunConsoleCommand("ulx","asay","GhosterBuster: has detected potential ghosting by "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
-							if(warnenabled == true) then
-								timer.Create("warntimer"..ply:SteamID(),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
+							if(gbwarnenabled == true) then
+								timer.Create("warntimer"..string.lower(ply:Name()),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
 							end
 						else
 							if(ply:IsSpec() == true and ply2:Alive() == true) then
 								RunConsoleCommand("ulx","asay","GhosterBuster: has detected potential ghosting by "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
 								if(warnenabled == true) then
-									timer.Create("warntimer"..ply:SteamID(),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
+									timer.Create("warntimer"..string.lower(ply:Name()),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
 								end
 							else
 								RunConsoleCommand("ulx","asay","GhosterBuster: "..ply:Name().." has been detected using a alert word in a psay to "..ply2:Name()..": '"..msg.."'")
@@ -157,11 +154,9 @@ function karmacheatDetector(ply)
 			RunConsoleCommand("ulx","asay","(ServerEssentials) has detected potential cheating by "..ply:Name().." they have more than the allowed karma limit.")
 			if(autokick == true) then
 				timer.Create("karmacheatkicktimer", timetokick, 1, function() RunConsoleCommand("ulx","kick",ply:SteamID(),"ServerEssentials: has detected you're using possible cheats/hacks you've been automatically kicked from the game.") end)
-				ServerLog("ServerEssentials: has kicked "..ply:Name().." for having above the allowed karma limited.\n")
 			end
 			if(autoban == true) then
 				timer.Create("karmacheatbantimer", timetoban, 1, function() RunConsoleCommand("ulx","banid",ply:SteamID(),lengthofban,"ServerEssentials: has detected you're using possible cheats/hacks you've been automatically banned from the game. You've been banned for "..lengthofban.. " minute(s)\n You can appeal at "..website) end)
-				ServerLog("ServerEssentials: has banned "..ply:Name().." for having above the allowed karma limited.\n")
 			end
 		end
 	end
@@ -203,6 +198,22 @@ end
 		return(false)
 	end
 end--]] 
+function chatCommand(ply, text, public)
+    if (string.sub( string.lower(text), 1, 8) == "!gb_stop" and table.HasValue(psaysee,ply:GetNWString("usergroup"))) then
+            antighostcfg = readCfg("GhosterBuster")
+            RunString(antighostcfg)
+            args = text:gsub("!gb_stop ","")
+            if player == nil then return true end
+            if (timer.Exists("warntimer"..args) == true) then
+                ply:PrintMessage(HUD_PRINTTALK,"Succesfully removed the autowarn timer of "..args.."!")
+                timer.Remove("warntimer"..args)
+            else
+                ply:PrintMessage(HUD_PRINTTALK,"There is no active autowarn timer for the player "..args.."!")
+            end
+        return(false)
+    end
+end
+hook.Add("PlayerSay", "chatCommand", chatCommand)
 hook.Add("PlayerSay","topdonatorsetplayer", topdonatorsetplayer)
 hook.Add("PlayerSay","serveressnetialschatcommand", serveressentialschat)
 hook.Add("TTTPlayerRadioCommand","antiradiospam", antiradioSpam)
