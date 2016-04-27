@@ -1,16 +1,15 @@
-exolib = include("exolib.lua")
+exolib = AddCSLuaFile("exolib.lua")
 function readCfg(portion)
-	textdata = file.Read("serveressentials.txt")
+	textdata = file.Read("serveressentials/serveressentials.txt","DATA")
 	portions = string.Explode("-- SPLIT CONFIG --", textdata)
 	if (portion == "ServerEssentials") then return (portions[1])
 	elseif (portion == "AutoCensor") then return (portions[2])
 	elseif (portion == "AntiAdminChatSpam") then return (portions[3])
 	elseif (portion == "GhosterBuster") then return (portions[4])
 	elseif (portion == "AntiChatSpam") then return (portions[5])
-	elseif (portion == "TopDonator") then return (portions[6])
-	elseif (portion == "KarmaChecker") then return (portions[7])
-	elseif (portion == "KarmaCheatDetect") then return (portions[8])
-	elseif (portion == "AntiRadioSpam") then return (portions[9])
+	elseif (portion == "KarmaChecker") then return (portions[6])
+	elseif (portion == "KarmaCheatDetect") then return (portions[7])
+	elseif (portion == "AntiRadioSpam") then return (portions[8])
 	end
 end
 function autoCensor(ply, text, public)
@@ -22,14 +21,13 @@ function autoCensor(ply, text, public)
 			returnedstring, bannedword = string.gsub(string.lower(text), line, line)
 				if (bannedword > 0) then
 					RunConsoleCommand("ulx","asay", "ServerEssentials: has detected use a banned word by "..ply:Name().."")
-					if (warnenabled == true) then
+					if (acwarnenabled == true) then
 						timer.Create("warncountdown"..ply:SteamID(), timetowarn, 1, function() RunConsoleCommand("awarn_warn", ply:SteamID(), "ServerEssentials: "..warnreason) end)
 					end
-					if (muteenabled == true) then
+					if (acmuteenabled == true) then
 						RunConsoleCommand("ulx","mute",ply:Name())
 						timer.Create("timetounmutewarn"..ply:SteamID(), timetounmuteawarn, function() RunConsoleCommand("ulx","unmute", ply:Name()) end)
 					end
-					return(false)
 				end
 			end
 		end
@@ -51,7 +49,6 @@ function antiadminSpam(ply, commandName, translated_args)
 				if(kickenabled == true) then
 					ply:Kick("ServerEssentials: has detected chat spam by you "..ply:Name().." you've been automatically disconnected from the server.")
 					SpamDetector[ply:SteamID()] = 0
-					return false
 				else
 					ply:PrintMessage(HUD_PRINTTALK,"Please refrain from spamming admin chat the staff team will get to you when it's your turn.")
 				end
@@ -75,15 +72,13 @@ function ghosterBuster(ply, commandName, translated_args)
 							if(gbwarnenabled == true) then
 								timer.Create("warntimer"..string.lower(ply:Name()),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
 							end
-						else
-							if(ply:IsSpec() == true and ply2:Alive() == true) then
-								RunConsoleCommand("ulx","asay","GhosterBuster: has detected potential ghosting by "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
-								if(warnenabled == true) then
-									timer.Create("warntimer"..string.lower(ply:Name()),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
-								end
-							else
-								RunConsoleCommand("ulx","asay","GhosterBuster: "..ply:Name().." has been detected using a alert word in a psay to "..ply2:Name()..": '"..msg.."'")
+						elseif (ply:IsSpec() == true and ply2:Alive() == true) then
+							RunConsoleCommand("ulx","asay","GhosterBuster: has detected potential ghosting by "..ply:Name().." to "..ply2:Name()..": '"..msg.."'")
+							if(gbwarnenabled == true) then
+								timer.Create("warntimer"..string.lower(ply:Name()),warntimeramount,1, function() RunConsoleCommand("awarn_warn",ply:SteamID(), "GhosterBuster: "..ply:Name().." "..warnreasongb) end)
 							end
+						else
+							RunConsoleCommand("ulx","asay","GhosterBuster: "..ply:Name().." has been detected using a alert word in a psay to "..ply2:Name()..": '"..msg.."'")
 						end
 					end
 				end
@@ -96,7 +91,7 @@ function ghosterBuster(ply, commandName, translated_args)
 						for i, player in ipairs(staff) do player:PrintMessage(HUD_PRINTTALK,"ServerEssentials: "..ply:Name().." to "..ply2:Name()..": '"..msg.."'") end
 					end
 				break end
-			end
+			break end
 		end
 	end
 end
@@ -125,13 +120,6 @@ function antichatSpam(ply, text, public)
 		end
 	end
 end
-function topDonator(ply, text, public)
-	textdata = readCfg("TopDonator")
-	RunString(textdata)
-	if(topdonatorenabled == true) then
-		ply:PrintMessage(HUD_PRINTTALK,"This months top donator is "..topdonatorplayer.."!")
-	end
-end
 function karmaChecker(ply)
 	textdata = readCfg("KarmaChecker")
 	RunString(textdata)
@@ -156,7 +144,7 @@ function karmacheatDetector(ply)
 				timer.Create("karmacheatkicktimer", timetokick, 1, function() RunConsoleCommand("ulx","kick",ply:SteamID(),"ServerEssentials: has detected you're using possible cheats/hacks you've been automatically kicked from the game.") end)
 			end
 			if(autoban == true) then
-				timer.Create("karmacheatbantimer", timetoban, 1, function() RunConsoleCommand("ulx","banid",ply:SteamID(),lengthofban,"ServerEssentials: has detected you're using possible cheats/hacks you've been automatically banned from the game. You've been banned for "..lengthofban.. " minute(s)\n You can appeal at "..website) end)
+				timer.Create("karmacheatbantimer", timetoban, 1, function() RunConsoleCommand("ulx","banid",ply:SteamID(),lengthofban,"ServerEssentials: has detected you're using possible cheats/hacks you've been automatically banned from the game. You've been banned for "..lengthofban.. " minute(s)") end)
 			end
 		end
 	end
@@ -190,14 +178,6 @@ function serveressentialschat(ply, text, public)
 		return(false)
 	end
 end
---[[ function topdonatorsetplayer(ply, text, public)
-	if(string.sub( string.lower(text), 1, 14) == "!settopdonator") then
-		arg = string.gsub(text,"!settopdonator ","")
-		topdonatorplayer = arg
-		ply:PrintMessage(HUD_PRINTTALK,"You've set "..arg.." as the top donator")
-		return(false)
-	end
-end--]] 
 function chatCommand(ply, text, public)
     if (string.sub( string.lower(text), 1, 8) == "!gb_stop" and table.HasValue(psaysee,ply:GetNWString("usergroup"))) then
             antighostcfg = readCfg("GhosterBuster")
@@ -205,7 +185,7 @@ function chatCommand(ply, text, public)
             args = text:gsub("!gb_stop ","")
             if player == nil then return true end
             if (timer.Exists("warntimer"..args) == true) then
-                ply:PrintMessage(HUD_PRINTTALK,"Succesfully removed the autowarn timer of "..args.."!")
+                ply:PrintMessage(HUD_PRINTTALK,"Succesfully removed the autowarn timer on "..args.."!")
                 timer.Remove("warntimer"..args)
             else
                 ply:PrintMessage(HUD_PRINTTALK,"There is no active autowarn timer for the player "..args.."!")
@@ -214,14 +194,12 @@ function chatCommand(ply, text, public)
     end
 end
 hook.Add("PlayerSay", "chatCommand", chatCommand)
-hook.Add("PlayerSay","topdonatorsetplayer", topdonatorsetplayer)
 hook.Add("PlayerSay","serveressnetialschatcommand", serveressentialschat)
 hook.Add("TTTPlayerRadioCommand","antiradiospam", antiradioSpam)
 hook.Add("PlayerSpawn","KarmaCheats", karmacheatDetector)
 hook.Add("PlayerSpawn","KarmaPenatlyChecker", karmaChecker) 
-hook.Add("PlayerInitialSpawn","topdonator", topDonator)
 hook.Add("Initialize","InfoPrinter", infoPrinter)
 hook.Add("PlayerSay","AntiChatSpam", antichatSpam)
-hook.Add("ULibPostTranslatedCommand", "antiadminspam", AntiAdminSpam)
+hook.Add("ULibPostTranslatedCommand", "antiadminspam", antiadminSpam)
 hook.Add("ULibPostTranslatedCommand", "PsaySpy", ghosterBuster)
 hook.Add("PlayerSay","AutoCensor", autoCensor)

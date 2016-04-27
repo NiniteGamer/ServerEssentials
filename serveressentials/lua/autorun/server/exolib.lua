@@ -58,3 +58,5 @@ function exolib.gmatchpos(str, subject)
 	end
 	if found ~= {} and found ~= nil then return found end
 end
+
+return exolib
