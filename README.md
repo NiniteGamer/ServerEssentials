@@ -9,16 +9,6 @@ NiniteGamer -- http://steamcommunity.com/id/NiniteGamer/
 
 Exo (He helped me a lot in making this addon) -- http://steamcommunity.com/id/exomaster2986/
 
----- Server Essentials Version History ----
-
-Pre-Release V 1.0.0 ~ 4/19/2016
-
-Release V 1.0.0 ~ 4/20/2016
-
-Pre-Release V 1.1.0 ~ 4/23/2016
-
-Release 1.2.0 ~ 4/26/2016 -- I skipped 1.1.0 because um I forgot XD
-
 ---- Server Essentials Description ----
 
 Server Essentials automates a lot of task for low staff servers so they can focus on other things.
